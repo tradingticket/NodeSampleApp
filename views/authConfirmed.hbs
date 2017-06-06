@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Authentication Success</title>
+        <link rel='stylesheet' href='/stylesheets/authConfirmed.css'/>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    </head>
+    <body>
+        <div class="mainContent .col-xs-12 .col-md-6">
+            <h2>Authentication Success</h2>
+
+            <form action="/portfolio" method="post" id="portfolioForm">
+                <p>Broker: {{userData.broker}}</p>
+                <p>sessionToken: {{userData.sessionToken}} </p>
+                <select name="account" class="buttons">
+                    {{#each userData.accountList}}
+                        <option value={{accountNumber}}> {{accountNumber}}  {{name}} </option>
+                    {{/each}}
+                </select>
+                <br>
+                <button class="buttons" type="submit" id="viewPortfolio" value="Send">View Portfolio</button>
+            </form>
+
+            <form action="/tradingTicket" method="post" id="getTradingTicketForm">
+                <div class="hidden">
+                </div>
+                <button class="buttons" type="submit" id="getTradingTicket" value="Send">Trading</button>
+            </form>
+            <button class="buttons" id="closeSession">Close Session</button>
+        </div>
+
+    <form action="/authError" method="post" id="sessionExpired" class="hidden">
+        <input id="shortMessage" name="shortMessage"></input>
+        <input id="longMessage" name="longMessage"></input>
+        <button class="buttons" id="sendErrorMgs"></button>
+    </form>
+
+    </body>
+
+</html>
+<script src="/javascripts/jquery-2.2.0.min.js"></script>
+<script>
+    var sessionToken = "{{userData.sessionToken}}";
+    var account = "{{userData.accountList.0.accountNumber}}";
+    var apiKey = "{{userData.apiKey}}";
+
+    /***********************************************************/
+    /* User can select accountNumber for the logged in broker  */
+    /* Choose to view Portfolio or trade                       */
+    /***********************************************************/
+    $(function(){
+        $('select').on('change', function() {
+            account = this.value;
+        });
+
+        $('#getTradingTicket').on('click', function(){
+            getTradingTicket();
+        });
+
+        $('#sessionExpire').on('click', function(){
+            triggerSessionExpire();
+        });
+
+        $('#closeSession').on('click', function(){
+            triggerCloseSession();
+        });
+    });
+
+    var getTradingTicket = function(){
+        $('#getTradingTicketForm div').append("<input name='accountNumber' value=" + account + "></input>");
+        $('#getTradingTicketForm div').append("<input name='sessionToken' value=" + sessionToken + "></input>");
+    };
+
+    var triggerCloseSession = function(){
+        $.ajax({
+            data: {apiKey: "tradeit-test-api-key", token: sessionToken, apiKey: apiKey},
+            dataType: "json",
+            method: "POST",
+            url: "https://ems.qa.tradingticket.com/api/v1/user/closeSession",
+            success: parseCloseSession
+        });
+    };
+
+    var parseResult = function(result){
+        if(result.status == "ERROR"){
+            $('#shortMessage').val(result.shortMessage);
+            $('#longMessage').val(result.longMessages[0]);
+            $('#sendErrorMgs').click();
+        }
+    };
+
+    var parseCloseSession = function(result){
+        if(result.status == "SUCCESS"){
+            window.alert("Session is now closed")
+        }else {
+            parseResult(result);
+        }
+    }
+
+</script>

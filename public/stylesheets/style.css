@@ -1,0 +1,24 @@
+body {
+  padding: 50px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+a {
+  color: #00B7FF;
+}
+
+.hidden {
+  display: none;
+}
+
+.trade {
+  font-weight: bold;
+  color: #466CFF;
+}
+.it {
+  font-weight: bold;
+  color: #102163;
+}
+.userInput {
+  margin: 0 auto;
+}

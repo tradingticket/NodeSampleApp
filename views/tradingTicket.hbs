@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Portfolio</title>
+    <link rel='stylesheet' href='/stylesheets/tradingTicket.css'/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+</head>
+
+    <h2>Trading Ticket</h2>
+    <div id="tradeInput">
+        <input class="hidden" id="accountNumber" name="accountNumber" value={{data.accountNumber}}></input> <br/>
+        <p>order symbol: </p><input id="orderSymbol" name="orderSymbol"></input><br/>
+        <p>order quantity: </p><input id="orderQuantity" name="orderQuantity" type="number"></input>
+        <p>orderAction: </p>
+        <select name="orderAction">
+            <option value="buy">buy</option>
+            <option value="sell">sell</option>
+        </select>
+        <p>orderPriceType: </p>
+        <select name="orderPriceType">
+            <option value="market">market</option>
+        </select>
+        <p>orderExpiration: </p>
+        <select name="orderExpiration">
+            <option value="day">day</option>
+            <option value="gtc">gtc</option>
+        </select>
+
+        <div class="hidden orderLimitPrice">
+            <p>orderLimitPrice: </p><input id="orderLimitPrice" name="orderLimitPrice" type="number"></input>
+        </div>
+        <div class="hidden orderStopPrice">
+            <p>orderStopPrice: </p><input id="orderStopPrice" name="orderStopPrice" type="number"></input>
+        </div></br></br>
+
+        <button id="reviewOrder" >Review Order</button>
+    </div>
+
+    <div class="hidden" id="reviewScreen">
+        <p>Review Screen:</p>
+        <p id="orderSymbol"></p>
+        <p id="orderAction"></p>
+        <p id="orderQuantity"></p>
+        <p id="orderExpiration"></p>
+        <p id="orderPrice"></p>
+        <p id="orderValueLabel"></p>
+        <p id="orderMessage"></p>
+        <p id="timestamp"></p>
+        <p id="buyingPower"></p>
+        <p id="availableCash"></p>
+        <p id="estimatedOrderCommission"></p>
+        <button id=cancel>Cancel</button>
+        <button id=placeOrder>Place Order</button>
+
+    </div>
+
+    <div class="hidden" id="confirmationScreen">
+        <p>Confirmation Screen:</p>
+        <p id="confirmationMessage"></p>
+        <p id="orderNumber"></p>
+    </div>
+
+    <form action="/authError" method="post" id="sessionExpired" class="hidden">
+        <input id="shortMessage" name="shortMessage"></input>
+        <input id="longMessage" name="longMessage"></input>
+        <button class="buttons" id="sendErrorMgs"></button>
+    </form>
+
+</body>
+
+</html>
+<script src="/javascripts/jquery-2.2.0.min.js"></script>
+<script>
+
+    $(function(){
+        $('#reviewOrder').on('click', function(){
+            getPreviewOrder();
+        });
+    });
+
+    var getPreviewOrder = function(){
+        var postData = {}
+        postData.token = "{{data.sessionToken}}"
+        postData.orderSymbol = $('#orderSymbol').val();
+        postData.accountNumber = $('#accountNumber').val();
+        postData.orderQuantity = $('#orderQuantity').val();
+        postData.orderAction = $('select[name=orderAction]').val();
+        postData.orderPriceType = $('select[name=orderPriceType]').val();
+        postData.orderExpiration = $('select[name=orderExpiration]').val();
+
+        $.ajax({
+            data: postData,
+            dataType: "json",
+            method: "POST",
+            url: "https://ems.qa.tradingticket.com/api/v1/order/previewStockOrEtfOrder",
+            success: parseResult
+        });
+
+    };
+
+    var parseResult = function(data){
+        if(data.status == "REVIEW_ORDER"){
+            $('#reviewScreen').removeClass('hidden');
+            $('#tradeInput').addClass('hidden');
+            if(data.orderDetails){
+                $('#orderSymbol').text("orderSymbol: " + data.orderDetails.orderSymbol);
+                $('#orderAction').text("orderAction: " + data.orderDetails.orderAction);
+                $('#orderQuantity').text("orderQuantity: " + data.orderDetails.orderQuantity);
+                $('#orderExpiration').text("orderExpiration: " + data.orderDetails.orderExpiration);
+                $('#orderPrice').text("orderPrice: " + data.orderDetails.orderPrice);
+                $('#orderValueLabel').text("orderValueLabel: " + data.orderDetails.orderValueLabel);
+                $('#orderMessage').text("orderMessage: " + data.orderDetails.orderMessage);
+                $('#timestamp').text("timestamp: " + data.orderDetails.timestamp);
+                $('#buyingPower').text("buyingPower: " + data.orderDetails.buyingPower);
+                $('#availableCash').text("availableCash: " + data.orderDetails.availableCash);
+                $('#estimatedOrderCommission').text("estimatedOrderCommission: " + data.orderDetails.estimatedOrderCommission);
+
+
+                $('#cancel').on('click', function(){
+                    $('#tradeInput').removeClass('hidden');
+                    $('#reviewScreen').addClass('hidden');
+                });
+
+                $('#placeOrder').on('click', function(){
+                    placeOrder(data.token, data.orderId)
+                });
+            }
+            if(data.warningsList[0]){
+                $('#reviewScreen').append("<p>warningMessage: " + data.warningsList[0] + "</p>");
+            }
+        }
+        if(data.status == "ERROR"){
+            $('#shortMessage').val(data.shortMessage);
+            $('#longMessage').val(data.longMessages[0]);
+            $('#sendErrorMgs').click();
+
+        }
+    }
+
+    var placeOrder = function(sessionToken, orderId){
+        $.ajax({
+            data: {orderId: orderId, token: sessionToken},
+            dataType: "json",
+            method: "POST",
+            url: "https://ems.qa.tradingticket.com/api/v1/order/placeStockOrEtfOrder",
+            success: orderPlaced
+        });
+    }
+
+    var orderPlaced = function(data){
+        if(data.status == 'SUCCESS'){
+            $('#reviewScreen').addClass('hidden');
+            $('#confirmationScreen').removeClass('hidden');
+
+            $('#confirmationMessage').text(data.confirmationMessage);
+            $('#orderNumber').text("orderNumber: " + data.orderNumber);
+        }
+        if(data.status == 'ERROR'){
+            $('#shortMessage').val(result.shortMessage);
+            $('#longMessage').val(result.longMessages[0]);
+            $('#sendErrorMgs').click();
+        }
+    }
+
+</script>

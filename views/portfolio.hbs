@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Portfolio</title>
+    <link rel='stylesheet' href='/stylesheets/portfolio.css'/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+</head>
+<body>
+    <h2>Portfolio View</h2>
+
+</body>
+    {{#if accountOverview.longMessages}}
+        <div>
+            <p>{{accountOverview.shortMessage}}</p>
+            <p>{{accountOverview.longMessages}}</p>
+        </div>
+    {{else}}
+        <div id="accountOverView">
+            <p>Available Cash: {{accountOverview.availableCash}}</p>
+            <p>Buying Power: {{accountOverview.buyingPower}}</p>
+            <p>Day Absolute Return: {{accountOverview.dayAbsoluteReturn}}</p>
+            <p>Day Percent Return: {{accountOverview.dayPercentReturn}}</p>
+            <p>Margin Cash: {{accountOverview.marginCash}}</p>
+            <p>Total Absolute Return: {{accountOverview.totalAbsoluteReturn}}</p>
+            <p>Total Percent Return: {{accountOverview.totalPercentReturn}}</p>
+            <p>Total Value: {{accountOverview.totalValue}}</p>
+        </div>
+        <button id="getPosition">show Positions</button>
+    {{/if}}
+
+    <div id="positionError" class="hidden">
+        <p id="shortMessage"></p>
+        <p id="longMessage"></p>
+    </div>
+
+        <div id="positionList" class="hidden">
+            <ul></ul>
+        </div>
+</html>
+
+<script src="/javascripts/jquery-2.2.0.min.js"></script>
+<script>
+    var sessionToken = "{{accountOverview.token}}";
+    var account = "{{accountOverview.accountNumber}}";
+    $(function(){
+        $('#getPosition').on('click', function(){
+            $.ajax({
+                data: {apiKey: "tradeit-test-api-key", token: sessionToken, accountNumber: account},
+                dataType: "json",
+                method: "POST",
+                url: "https://ems.qa.tradingticket.com/api/v1/position/getPositions",
+                success: parseResult
+            });
+        });
+    });
+
+    var parseResult = function(result){
+        $('#getPosition').addClass("hidden");
+        if(result.status == "SUCCESS"){
+            if(result.positions){
+                $('#positionList').removeClass("hidden");
+                for(var i=0;i<result.positions.length;i++){
+                    $('#positionList ul').append("<li class='positionSymbol'> Symbol: " + result.positions[i].symbol + "</li>");
+                    $('#positionList ul').append("<li> Qty:" + result.positions[i].quantity + "</li>");
+                    $('#positionList ul').append("<li> Holding Type:" + result.positions[i].holdingType + "</li>");
+                    $('#positionList ul').append("<li> Cost Basis:" + result.positions[i].costbasis + "</li>");
+                    $('#positionList ul').append("<li> LastPrice:" + result.positions[i].lastPrice + "</li>");
+                    $('#positionList ul').append("</br>");
+                }
+            }
+        } else if(result.status == "ERROR"){
+            $('#positionError').removeClass("hidden");
+            $('#shortMessage').val(result.shortMessage);
+            $('#longMessage').val(result.longMessages[0]);
+        }
+
+    };
+</script>

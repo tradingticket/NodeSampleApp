@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Broker Selection</title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  </head>
+  <body>
+  <h2 .col-xs-6 .col-md-4>Welcome to <span class="trade">Trade</span><span class="it">IT</span></h2>
+    <p>Broker Selection</p>
+
+    <div class="userInput">
+        <p>Select a broker to sign in with</p>
+
+        <form action="/" method="post" id="form" >
+            <select name="broker">
+                {{#each list}}
+                    <option value={{shortName}}>{{shortName}}</option>
+               {{/each}}
+            </select>
+            <button type="submit" id="getPopUpURL" value="Send">Sign In</button>
+        </form>
+        <br />
+        <div class="informationNeeded hidden">
+
+            <p id="securityQuestion"></p>
+            <input type="password" id="answer"></input>
+            <button type="submit" id="answerSecurityQuestion" value="Send">Submit</button>
+            <p id="securityMessage"></p>
+        </div>
+    </div>
+
+    <div class="AuthSuccess hidden">
+        <p id="successMessage" >Broker Successfully Link and Authenticated</p>
+    </div>
+
+    <form action="/authenticated" method="post" id="dataForm" class="hidden">
+        <input id="userId" name="userId"></input>
+        <input id="userToken" name="userToken"></input>
+        <input id="sessionToken" name="sessionToken"></input>
+        <button type="submit" id="successAuthSubmit" value="Send"></button>
+    </form>
+
+      <form action="/authError" method="post" id="authErrorForm" class="hidden">
+          <input id="shortMessage" name="shortMessage"></input>
+          <input id="longMessage" name="longMessage"></input>
+          <button type="submit" id="failedAuthSubmit" value="Send"></button>
+      </form>
+
+  </body>
+</html>
+<script src="/javascripts/jquery-2.2.0.min.js"></script>
+<script>
+    var broker = 'Dummy'
+    $(function(){
+        var $form = $('#form')
+        var options = "${options}"
+
+        $('select').on('change', function() {
+            broker = this.value;
+            $('#getPopUpURL').removeClass('disabled');
+        });
+
+        $('#getPopUpURL').on('click', function(){
+            if(broker && broker != ""){
+                $('#getPopUpURL').addClass('disabled');
+                getPopUpURL(broker);
+            }
+        });
+
+        /****************************************************/
+        /* EventListener used to capture the oAuthVerifier  */
+        /* after user enter broker credentials successfully */
+        /****************************************************/
+        var receiveMessage = function(e) {
+            var data = JSON.parse(e.data);
+            var oAuthVerifier = data.oAuthVerifier;
+            getTradeItTokens(oAuthVerifier)
+        };
+
+        if (window.addEventListener) {
+            addEventListener("message", receiveMessage, false);
+        } else {
+            attachEvent("onmessage", receiveMessage);
+        }
+    });
+
+    /******************************************************/
+    /* Request to getOAuthLoginPopupUrlForWebApp endpoint */
+    /******************************************************/
+    var getPopUpURL = function(broker){
+        $.ajax({
+            data: {apiKey: "tradeit-test-api-key", broker: broker},
+            dataType: "json",
+            method: "POST",
+            url: "https://ems.qa.tradingticket.com/api/v1/user/getOAuthLoginPopupUrlForWebApp",
+            success: parseResult
+        });
+    };
+
+    var parseResult = function(result){
+        if(result.status == 'ERROR'){
+            window.alert('Error getting oAuthURL'); //TODO: error handling
+        }
+        else if(result.status == 'SUCCESS'){
+            var oAuthURL = result.oAuthURL;
+            openOauthURL(oAuthURL);
+            oAuthURL = '';
+        }
+    };
+
+    /**********************************************/
+    /* Open oAuth Login screen in a pop-up window */
+    /**********************************************/
+    var openOauthURL = function(oAuthURL){
+        window.open(oAuthURL, "oAuth Login", "height=435,width=962");
+    };
+
+    /****************************************************/
+    /* Request to getOAuthAccessToken endpoint using    */
+    /* the oAuthVerifier captured earlier in order to   */
+    /* gain access to userId and userToken              */
+    /****************************************************/
+    var getTradeItTokens = function(oAuthVerifier){
+        $.ajax({
+            data: {apiKey: "tradeit-test-api-key", oAuthVerifier: oAuthVerifier},
+                dataType: "json",
+                method: "POST",
+                url: "https://ems.qa.tradingticket.com/api/v1/user/getOAuthAccessToken",
+                success: authenticate
+        });
+    };
+
+    /****************************************************/
+    /* Request to authenticate endpoint using the       */
+    /* userId and userToken to gain access to           */
+    /* account list and sessionToken                    */
+    /****************************************************/
+    var authenticate = function(result){
+       if(result.status == 'ERROR'){
+            window.alert('Error getting user tokens'); //TODO: error handling
+       }
+       else if(result.status == 'SUCCESS'){
+           $('#userId').val(result.userId);
+           $('#userToken').val(result.userToken);
+            $.ajax({
+                data: {apiKey: "tradeit-test-api-key", userId: result.userId, userToken: result.userToken},
+                dataType: "json",
+                method: "POST",
+                url: "https://ems.qa.tradingticket.com/api/v1/user/authenticate?srv=05040504",
+                success: processAuthResult
+            });
+       }
+    };
+
+    /************************************/
+    /* Handle authentication response:  */
+    /*  1. Success authentication       */
+    /*  2. Handle security question     */
+    /*  3. Authentication failure       */
+    /************************************/
+    var processAuthResult = function(result){
+
+        // 1. success authentication
+        if(result.status == 'SUCCESS'){
+            $('.AuthSuccess').removeClass('hidden');
+            $('#sessionToken').val(result.token);
+
+            $('#securityMessage').addClass('hidden');
+            $('.userInput').addClass('hidden');
+
+            var accountsList = result.accounts
+
+            $('#dataForm').append("<input name='numberOfAccounts' value=" + accountsList.length + "></input>");
+            $('#dataForm').append("<input name='broker' value=" + broker + "></input>");
+
+            for(i = 0; i < accountsList.length; i++){
+                $('#dataForm').append("<input name='accountNo" + i + "' value=" + accountsList[i].accountNumber + "></input>");
+                $('#dataForm').append("<input name='accountName" + i + "' value=" + accountsList[i].name + "></input>");
+            }
+
+            $('#successAuthSubmit').click();
+
+        }
+
+        // 2. Security question needed to complete authentication
+        // Display security question, ask for user input
+        // See API Doc. for types of security question
+        else if (result.status == 'INFORMATION_NEEDED'){
+            $('.informationNeeded').removeClass('hidden');
+            $('#securityQuestion').html("Question: "+ result.securityQuestion);
+
+            if(result.informationLongMessage){
+                $('#securityMessage').html(result.informationLongMessage)
+            }
+
+            $('#answerSecurityQuestion').on('click', function(){
+                if($('#answer').val() && $('#answer').val() != ""){
+                    authWithSecurityQuestion($('#answer').val(), result.token);
+                }
+            });
+        }
+
+        // 3. Authentication failed
+        else if (result.status == 'ERROR'){
+            $('#shortMessage').val(result.shortMessage);
+            $('#longMessage').val(result.longMessages[0]);
+            $('#failedAuthSubmit').click();
+        }
+    };
+
+    /**********************************************************/
+    /* Request to answerSecurityQuestion endpoint with answer */
+    /**********************************************************/
+    var authWithSecurityQuestion = function(answer, token){
+        $('#answer').val('');
+        $.ajax({
+            data: {apiKey: "tradeit-test-api-key", token: token, securityAnswer: answer},
+                dataType: "json",
+                method: "POST",
+                url: "https://ems.qa.tradingticket.com/api/v1/user/answerSecurityQuestion?srv=05040504",
+                success: processAuthResult
+        });
+    }
+
+</script>
