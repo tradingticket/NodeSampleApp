@@ -80,8 +80,6 @@ router.post('/portfolio', urlencodedParser, function(req, resp, next){
             resp.render('error');
         }
         var balanceData = body
-        balanceData.userId = userData.userId
-        balanceData.userToken = userData.userToken
         balanceData.accountNumber = postData.accountNumber
         resp.render('portfolio', {accountOverview: balanceData});
     };

@@ -8,31 +8,29 @@
 
     <h2>Trading Ticket</h2>
     <div id="tradeInput">
-        <input class="hidden" id="accountNumber" name="accountNumber" value={{data.accountNumber}}></input> <br/>
-        <p>order symbol: </p><input id="orderSymbol" name="orderSymbol"></input><br/>
-        <p>order quantity: </p><input id="orderQuantity" name="orderQuantity" type="number"></input>
-        <p>orderAction: </p>
+        <input class="hidden" id="accountNumber" name="accountNumber" value={{data.accountNumber}}></input>
+        <p class="title">order symbol: </p><input id="orderSymbol" name="orderSymbol"></input>
+        <p class="title">order quantity: </p><input id="orderQuantity" name="orderQuantity" type="number"></input>
+        <p class="title">orderAction: </p>
         <select name="orderAction">
             <option value="buy">buy</option>
             <option value="sell">sell</option>
         </select>
-        <p>orderPriceType: </p>
-        <select name="orderPriceType">
+        <p class="title">orderPriceType: </p>
+        <select id="priceType" name="orderPriceType">
             <option value="market">market</option>
+            <option value="limit">limit</option>
         </select>
-        <p>orderExpiration: </p>
+
+        <p class="title hidden limit">order limit price: </p>
+        <input id="orderLimitPrice" class="hidden limit" name="orderLimitPrice" type="number"></input>
+
+        <p class="title">orderExpiration: </p>
         <select name="orderExpiration">
             <option value="day">day</option>
             <option value="gtc">gtc</option>
         </select>
-
-        <div class="hidden orderLimitPrice">
-            <p>orderLimitPrice: </p><input id="orderLimitPrice" name="orderLimitPrice" type="number"></input>
-        </div>
-        <div class="hidden orderStopPrice">
-            <p>orderStopPrice: </p><input id="orderStopPrice" name="orderStopPrice" type="number"></input>
-        </div></br></br>
-
+        <br />
         <button id="reviewOrder" >Review Order</button>
     </div>
 
@@ -65,6 +63,14 @@
         <input id="longMessage" name="longMessage"></input>
         <button class="buttons" id="sendErrorMgs"></button>
     </form>
+    <br/>
+    <form action="/tradingTicket" method="post" id="backToTT" class="hidden">
+        <button class="buttons" id="goBkToTT">Trading Ticket</button>
+    </form>
+    <br/>
+    <form action="/portfolio" method="post" id="backToPortfolio" class="hidden">
+        <button class="buttons" id="goToPortfolio">View Portfolio</button>
+    </form>
 
 </body>
 
@@ -76,17 +82,37 @@
         $('#reviewOrder').on('click', function(){
             getPreviewOrder();
         });
+
+        $('#priceType').on('change', function() {
+            if ($(this).val() == 'limit') {
+                $('.limit').removeClass('hidden');
+            }
+            else if($(this).val() == 'market') {
+                $('.limit').addClass('hidden');
+            }
+        });
+
+        $('#backToTT').on('click', function(){
+            backToTradingTicket();
+        });
+
+        $('#goToPortfolio').on('click', function(){
+            toPortfolio();
+        });
     });
 
     var getPreviewOrder = function(){
-        var postData = {}
-        postData.token = "{{data.sessionToken}}"
+        var postData = {};
+        postData.token = "{{data.sessionToken}}";
         postData.orderSymbol = $('#orderSymbol').val();
         postData.accountNumber = $('#accountNumber').val();
         postData.orderQuantity = $('#orderQuantity').val();
         postData.orderAction = $('select[name=orderAction]').val();
         postData.orderPriceType = $('select[name=orderPriceType]').val();
         postData.orderExpiration = $('select[name=orderExpiration]').val();
+        if(postData.orderPriceType == "limit"){
+            postData.orderLimitPrice = $('#orderLimitPrice').val();
+        }
 
         $.ajax({
             data: postData,
@@ -122,6 +148,7 @@
                 });
 
                 $('#placeOrder').on('click', function(){
+                    $('#placeOrder').addClass("disabled");
                     placeOrder(data.token, data.orderId)
                 });
             }
@@ -135,7 +162,7 @@
             $('#sendErrorMgs').click();
 
         }
-    }
+    };
 
     var placeOrder = function(sessionToken, orderId){
         $.ajax({
@@ -145,7 +172,7 @@
             url: "https://ems.qa.tradingticket.com/api/v1/order/placeStockOrEtfOrder",
             success: orderPlaced
         });
-    }
+    };
 
     var orderPlaced = function(data){
         if(data.status == 'SUCCESS'){
@@ -154,12 +181,25 @@
 
             $('#confirmationMessage').text(data.confirmationMessage);
             $('#orderNumber').text("orderNumber: " + data.orderNumber);
+            $('#backToTT').removeClass('hidden');
+            $('#backToPortfolio').removeClass('hidden');
         }
         if(data.status == 'ERROR'){
-            $('#shortMessage').val(result.shortMessage);
-            $('#longMessage').val(result.longMessages[0]);
+            $('#shortMessage').val(data.shortMessage);
+            $('#longMessage').val(data.longMessages[0]);
             $('#sendErrorMgs').click();
         }
     }
+
+    var backToTradingTicket = function(){
+        $('#backToTT').append("<input class='hidden' name='accountNumber' value=" + "{{data.accountNumber}}" + "></input>");
+        $('#backToTT').append("<input class='hidden' name='sessionToken' value=" + "{{data.sessionToken}}" + "></input>");
+    };
+
+    var toPortfolio = function(){
+        $('#backToPortfolio').append("<input class='hidden' name='account' value=" + "{{data.accountNumber}}" + "></input>");
+        $('#backToPortfolio').append("<input class='hidden' name='sessionToken' value=" + "{{data.sessionToken}}" + "></input>");
+    };
+
 
 </script>

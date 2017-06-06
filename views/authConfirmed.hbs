@@ -57,10 +57,6 @@
             getTradingTicket();
         });
 
-        $('#sessionExpire').on('click', function(){
-            triggerSessionExpire();
-        });
-
         $('#closeSession').on('click', function(){
             triggerCloseSession();
         });
@@ -91,6 +87,7 @@
 
     var parseCloseSession = function(result){
         if(result.status == "SUCCESS"){
+            $('#closeSession').addClass("hidden");
             window.alert("Session is now closed")
         }else {
             parseResult(result);
