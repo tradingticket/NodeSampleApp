@@ -20,7 +20,6 @@ var options = {
 /* Request to getStocksOrEtfsBrokerList endpoint */
 /*************************************************/
 router.get('/', function(req, resp, next) {
-    postData = {};
     postData.apiKey = 'tradeit-test-api-key';
     options.url = 'https://ems.qa.tradingticket.com/api/v1/preference/getStocksOrEtfsBrokerList';
 
