@@ -41,10 +41,10 @@ router.post('/', jsonParser, function(req, resp, next){
 /* After user successfully authenticated                */
 /* Select accountNumber for Portfolio or trading        */
 /* Remark#1: Make sure user data such as                */
-/*  userId, userToken, sessionToken... are saved in db  */
-/*  instead of passing them around like here            */
+/* userId, userToken, sessionToken... are saved in db   */
+/* instead of passing them around like here             */
 /* Remark#2: /getAccountOverview is called as ajax and  */
-/*  /getPosition is called sever-side                   */
+/* /getPosition is called sever-side                    */
 /********************************************************/
 router.post('/authenticated', urlencodedParser, function(req, resp, next){
     userData.userId = req.body.userId;
