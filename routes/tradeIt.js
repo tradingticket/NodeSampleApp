@@ -6,8 +6,6 @@ var urlencodedParser = parser.urlencoded({ extended: false });
 var jsonParser = parser.json();
 var cookie = require('cookie');
 
-global.userData = {};
-
 var postData = {};
 
 var options = {
@@ -28,7 +26,7 @@ router.get('/', function(req, resp, next) {
         if(err){
             resp.render('error');
         }
-        resp.render('index', { list: body.brokerList });
+        resp.render('index', { list: body.brokerList, apiKey: postData.apiKey });
     };
 
     request(options, callback)
@@ -38,40 +36,30 @@ router.get('/', function(req, resp, next) {
 /********************************************************/
 /* After user successfully authenticated                */
 /* Select accountNumber for Portfolio or trading        */
+/*                                                      */
 /* Remark#1: Make sure user data such as                */
-/* userId, userToken, sessionToken... are saved in db   */
-/* instead of passing them around like here             */
+/* userId, userToken are saved in db                    */
+/* instead of saving in cookies in here                 */
 /* Remark#2: /getAccountOverview is called as ajax and  */
 /* /getPosition is called sever-side                    */
 /********************************************************/
 router.post('/authenticated', urlencodedParser, function(req, resp, next){
-    userData.userId = req.body.userId;
-    userData.userToken = req.body.userToken;
-    userData.sessionToken = req.body.sessionToken;
-    userData.broker = req.body.broker;
-    userData.apiKey = postData.apiKey
+    var cookies = cookie.parse(req.headers.cookie);
+    var accountsJson = JSON.parse(cookies.accounts);
 
-    //don't do this
-    var accounts = []
-    for(var i = 0; i < req.body.numberOfAccounts; i++){
-        var account = {}
-        var accountNo = "accountNo" + i;
-        var accountName = "accountName" + i;
-        account.accountNumber = req.body[accountNo];
-        account.name = req.body[accountName];
-
-        accounts.push(account)
-    }
-    userData.accountList = accounts
+    var userData = {}
+    userData.accountList = accountsJson;
+    userData.sessionToken = cookies.sessionToken;
+    userData.apiKey = cookies.apiKey;
 
     resp.render('authConfirmed', {userData: userData})
 });
 
 router.post('/portfolio', urlencodedParser, function(req, resp, next){
     options.url = 'https://ems.qa.tradingticket.com/api/v1/balance/getAccountOverview';
-    postData.token = userData.sessionToken
-    postData.accountNumber = req.body.account
-
+    var cookies = cookie.parse(req.headers.cookie);
+    postData.token = cookies.sessionToken;
+    postData.accountNumber = req.body.account;
 
     function callback(err, res, body) {
         if(err){
