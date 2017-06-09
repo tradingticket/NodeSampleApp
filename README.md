@@ -6,7 +6,12 @@ Get Node and package manager:
 https://nodejs.org/en/download/
 
 Installation:
-```$ npm install```
+```
+$ npm install
+```
 
 Usage: 
-From Command line: ```$ npm start ```
+From Command line: 
+```
+$ npm start 
+```
