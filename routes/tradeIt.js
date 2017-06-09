@@ -4,6 +4,7 @@ var router = express.Router();
 var parser = require('body-parser');
 var urlencodedParser = parser.urlencoded({ extended: false });
 var jsonParser = parser.json();
+var cookie = require('cookie');
 
 global.userData = {};
 
@@ -33,9 +34,6 @@ router.get('/', function(req, resp, next) {
     request(options, callback)
 });
 
-router.post('/', jsonParser, function(req, resp, next){
-
-});
 
 /********************************************************/
 /* After user successfully authenticated                */

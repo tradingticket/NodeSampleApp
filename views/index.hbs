@@ -49,6 +49,7 @@
 
   </body>
 </html>
+
 <script src="/javascripts/jquery-2.2.0.min.js"></script>
 <script>
     var broker = 'Dummy'
@@ -61,11 +62,12 @@
             $('#getPopUpURL').removeClass('disabled');
         });
 
-        $('#getPopUpURL').on('click', function(){
+        $('#getPopUpURL').on('click', function(e){
             if(broker && broker != ""){
                 $('#getPopUpURL').addClass('disabled');
                 getPopUpURL(broker);
             }
+            e.preventDefault();
         });
 
         /****************************************************/
