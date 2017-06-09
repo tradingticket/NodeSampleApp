@@ -5,7 +5,7 @@ make requests to TradeIt's JSON API and render responses to templates.
 Get Node and package manager:
 https://nodejs.org/en/download/
 
-Installation
+Installation:
 ```$ npm install```
 
 Usage: 
