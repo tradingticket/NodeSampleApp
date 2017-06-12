@@ -10,8 +10,6 @@
             <h2>Authentication Success</h2>
 
             <form action="/portfolio" method="post" id="portfolioForm">
-                <p>Broker: {{userData.broker}}</p>
-                <p>sessionToken: {{userData.sessionToken}} </p>
                 <select name="account" class="buttons">
                     {{#each userData.accountList}}
                         <option value={{accountNumber}}> {{accountNumber}}  {{name}} </option>
@@ -39,10 +37,11 @@
 
 </html>
 <script src="/javascripts/jquery-2.2.0.min.js"></script>
+<script src="/javascripts/jquery_cookie.js"></script>
 <script>
-    var sessionToken = "{{userData.sessionToken}}";
     var account = "{{userData.accountList.0.accountNumber}}";
     var apiKey = "{{userData.apiKey}}";
+    var sessionToken = "{{userData.sessionToken}}";
 
     /***********************************************************/
     /* User can select accountNumber for the logged in broker  */
@@ -69,7 +68,7 @@
 
     var triggerCloseSession = function(){
         $.ajax({
-            data: {apiKey: "tradeit-test-api-key", token: sessionToken, apiKey: apiKey},
+            data: {token: sessionToken, apiKey: apiKey},
             dataType: "json",
             method: "POST",
             url: "https://ems.qa.tradingticket.com/api/v1/user/closeSession",

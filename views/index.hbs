@@ -35,9 +35,6 @@
     </div>
 
     <form action="/authenticated" method="post" id="dataForm" class="hidden">
-        <input id="userId" name="userId"></input>
-        <input id="userToken" name="userToken"></input>
-        <input id="sessionToken" name="sessionToken"></input>
         <button type="submit" id="successAuthSubmit" value="Send"></button>
     </form>
 
@@ -50,12 +47,14 @@
   </body>
 </html>
 
-<script src="/javascripts/jquery-2.2.0.min.js"></script>
+<script src="/javascripts/jquery-2.2.0.min.js" type="text/javascript"></script>
+<script src="/javascripts/jquery_cookie.js"></script>
 <script>
-    var broker = 'Dummy'
+    var broker = 'Dummy';
     $(function(){
-        var $form = $('#form')
-        var options = "${options}"
+        var $form = $('#form');
+        var apiKey = "{{apiKey}}";
+        $.cookie("apiKey", apiKey);
 
         $('select').on('change', function() {
             broker = this.value;
@@ -65,6 +64,7 @@
         $('#getPopUpURL').on('click', function(e){
             if(broker && broker != ""){
                 $('#getPopUpURL').addClass('disabled');
+                $.cookie("broker", broker, { expires: 1 }); //expiration 1 day
                 getPopUpURL(broker);
             }
             e.preventDefault();
@@ -145,6 +145,10 @@
        else if(result.status == 'SUCCESS'){
            $('#userId').val(result.userId);
            $('#userToken').val(result.userToken);
+
+           $.cookie("userId", result.userId, { expires: 1 }); //expiration 1 day
+           $.cookie("userToken", result.userToken, { expires: 1 }); //expiration 1 day
+
             $.ajax({
                 data: {apiKey: "tradeit-test-api-key", userId: result.userId, userToken: result.userToken},
                 dataType: "json",
@@ -167,22 +171,16 @@
         if(result.status == 'SUCCESS'){
             $('.AuthSuccess').removeClass('hidden');
             $('#sessionToken').val(result.token);
+            $.cookie("sessionToken", result.token, { expires: 1 }); //expiration 1 day
 
             $('#securityMessage').addClass('hidden');
             $('.userInput').addClass('hidden');
 
             var accountsList = result.accounts
-
-            $('#dataForm').append("<input name='numberOfAccounts' value=" + accountsList.length + "></input>");
-            $('#dataForm').append("<input name='broker' value=" + broker + "></input>");
-
-            for(i = 0; i < accountsList.length; i++){
-                $('#dataForm').append("<input name='accountNo" + i + "' value=" + accountsList[i].accountNumber + "></input>");
-                $('#dataForm').append("<input name='accountName" + i + "' value=" + accountsList[i].name + "></input>");
-            }
+            $.cookie.json = true;
+            $.cookie("accounts", accountsList);
 
             $('#successAuthSubmit').click();
-
         }
 
         // 2. Security question needed to complete authentication
