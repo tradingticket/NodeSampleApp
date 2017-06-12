@@ -37,11 +37,10 @@ router.get('/', function(req, resp, next) {
 /* After user successfully authenticated                */
 /* Select accountNumber for Portfolio or trading        */
 /*                                                      */
-/* Remark#1: Make sure user data such as                */
-/* userId, userToken are saved in db                    */
-/* instead of saving in cookies in here                 */
-/* Remark#2: /getAccountOverview is called as ajax and  */
-/* /getPosition is called sever-side                    */
+/* Remark: Make sure sensitive tokens such as           */
+/* userId, userToken are encrypted and saved            */
+/*                                                      */
+/* Do NOT save in cookies like here                     */
 /********************************************************/
 router.post('/authenticated', urlencodedParser, function(req, resp, next){
     var cookies = cookie.parse(req.headers.cookie);
