@@ -4,7 +4,7 @@ var router = express.Router();
 var parser = require('body-parser');
 var urlencodedParser = parser.urlencoded({ extended: false });
 var jsonParser = parser.json();
-var cookie = require('cookie');
+var cookie = require('cookie-parser');
 
 var postData = {};
 
