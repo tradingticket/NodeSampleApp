@@ -4,7 +4,7 @@ var router = express.Router();
 var parser = require('body-parser');
 var urlencodedParser = parser.urlencoded({ extended: false });
 var jsonParser = parser.json();
-var cookie = require('cookie-parser');
+var cookie = require('cookie');
 
 var postData = {};
 
@@ -16,11 +16,11 @@ var options = {
 };
 
 /*************************************************/
-/* Request to getStocksOrEtfsBrokerList endpoint */
+/* Request to getBrokerList endpoint */
 /*************************************************/
 router.get('/', function(req, resp, next) {
     postData.apiKey = 'tradeit-test-api-key';
-    options.url = 'https://ems.qa.tradingticket.com/api/v1/preference/getStocksOrEtfsBrokerList';
+    options.url = 'https://ems.qa.tradingticket.com/api/v1/preference/getBrokerList';
 
     function callback(err, res, body) {
         if(err){
