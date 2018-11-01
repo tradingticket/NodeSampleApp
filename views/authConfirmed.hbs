@@ -87,7 +87,8 @@
     var parseCloseSession = function(result){
         if(result.status == "SUCCESS"){
             $('#closeSession').addClass("hidden");
-            window.alert("Session is now closed")
+            window.alert("Session is now closed");
+            window.location.replace("/");
         }else {
             parseResult(result);
         }
