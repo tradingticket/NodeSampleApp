@@ -3,8 +3,11 @@ var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
 var tradeIt = require('./routes/tradeIt');
+var hbs = require('hbs');
 
 var app = express();
+
+hbs.registerPartials(__dirname + '/views/partials');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

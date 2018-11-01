@@ -1,24 +1,24 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Broker Selection</title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    {{> prereqs }}
   </head>
-  <body>
-  <h2 .col-xs-6 .col-md-4>Welcome to <span class="trade">Trade</span><span class="it">IT</span></h2>
-    <p>Broker Selection</p>
+  <body class="sandboxtwo">
+    <div class="container">
+      {{> header }}
+      <h2 .col-xs-6 .col-md-4>Welcome to <span style="color: lightcoral;">Portfolio </span><span class="trade">Trade</span><span class="it">IT</span></h2>
+    <p><h4>Broker Selection</h4></p>
 
     <div class="userInput">
-        <p>Select a broker to sign in with</p>
-
+        <br>
         <form action="/" method="post" id="form" >
-            <select name="broker">
+            <select class="form-control" name="broker">
                 {{#each list}}
                     <option value={{shortName}}>{{shortName}}</option>
                {{/each}}
             </select>
-            <button type="submit" id="getPopUpURL" value="Send">Sign In</button>
+            <br>
+            <button type="submit" class="btn btn-info" id="getPopUpURL" value="Send">Sign In</button>
         </form>
         <br />
         <div class="informationNeeded hidden">
@@ -43,7 +43,8 @@
           <input id="longMessage" name="longMessage"></input>
           <button type="submit" id="failedAuthSubmit" value="Send"></button>
       </form>
-
+      {{> footer }}
+    </div>
   </body>
 </html>
 
