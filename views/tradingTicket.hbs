@@ -1,37 +1,38 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Portfolio</title>
+    {{> prereqs }}
     <link rel='stylesheet' href='/stylesheets/tradingTicket.css'/>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 </head>
-
+<body class="sandboxtwo">
+  {{> header }}
+  <div class="page-content tab">
     <h2>Trading Ticket</h2>
     <div id="tradeInput">
         <input class="hidden" id="accountNumber" name="accountNumber" value={{data.accountNumber}}></input>
-        <p class="title">orderSymbol: </p><input id="orderSymbol" name="orderSymbol"></input>
-        <p class="title">orderQuantity: </p><input id="orderQuantity" name="orderQuantity" type="number"></input>
-        <p class="title">orderAction: </p>
-        <select name="orderAction">
+        <p class="title"><h4>Ticker Name: </h4></p><input class="form-control" id="orderSymbol" name="orderSymbol" style="width: 15vw"></input>
+        <p class="title"><h4>Order Quantity: </h4></p><input class="form-control" id="orderQuantity" name="orderQuantity" type="number" style="width: 15vw"></input>
+        <p class="title"><h4>Order Action: </h4></p>
+        <select name="orderAction" class="form-control">
             <option value="buy">buy</option>
             <option value="sell">sell</option>
         </select>
-        <p class="title">orderPriceType: </p>
-        <select id="priceType" name="orderPriceType">
+        <p class="title"><h4>Order Price Type: </h4></p>
+        <select id="priceType" name="orderPriceType" class="form-control">
             <option value="market">market</option>
             <option value="limit">limit</option>
         </select>
 
-        <p class="title hidden limit">order limit price: </p>
+        <p class="title hidden limit">Order Limit Price: </p>
         <input id="orderLimitPrice" class="hidden limit" name="orderLimitPrice" type="number"></input>
 
-        <p class="title">orderExpiration: </p>
-        <select name="orderExpiration">
+        <p class="title"><h4>Order Expiration: </h4></p>
+        <select name="orderExpiration" class="form-control">
             <option value="day">day</option>
             <option value="gtc">gtc</option>
         </select>
         <br />
-        <button id="reviewOrder" >Review Order</button>
+        <button id="reviewOrder" class="btn btn-warning">Review Order</button>
     </div>
 
     <div class="hidden" id="reviewScreen">
@@ -71,7 +72,8 @@
     <form action="/portfolio" method="post" id="backToPortfolio" class="hidden">
         <button class="buttons" id="goToPortfolio">View Portfolio</button>
     </form>
-
+  </div>
+  {{> footer }}
 </body>
 
 </html>

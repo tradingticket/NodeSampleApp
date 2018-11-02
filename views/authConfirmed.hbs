@@ -1,38 +1,41 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Authentication Success</title>
+        {{> prereqs }}
         <link rel='stylesheet' href='/stylesheets/authConfirmed.css'/>
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     </head>
-    <body>
+    <body class="sandboxtwo">
+        {{> header }}
+        <div class="page-content tab">
         <div class="mainContent .col-xs-12 .col-md-6">
             <h2>Authentication Success</h2>
-
+            <br>
             <form action="/portfolio" method="post" id="portfolioForm">
-                <select name="account" class="buttons">
+                <select name="account" class="form-control">
                     {{#each userData.accountList}}
                         <option value={{accountNumber}}> {{accountNumber}}  {{name}} </option>
                     {{/each}}
                 </select>
                 <br>
-                <button class="buttons" type="submit" id="viewPortfolio" value="Send">View Portfolio</button>
+                <button class="buttons" type="submit" id="viewPortfolio" value="Send" style="display: none">View Portfolio</button>
             </form>
 
             <form action="/tradingTicket" method="post" id="getTradingTicketForm">
                 <div class="hidden">
                 </div>
-                <button class="buttons" type="submit" id="getTradingTicket" value="Send">Trading</button>
+                <button class="btn btn-success" type="submit" id="getTradingTicket" value="Send">Proceed to Trading</button>
             </form>
-            <button class="buttons" id="closeSession">Close Session</button>
+            <br>
+            <button class="btn btn-danger" id="closeSession">Close Session</button>
         </div>
 
     <form action="/authError" method="post" id="sessionExpired" class="hidden">
         <input id="shortMessage" name="shortMessage"></input>
         <input id="longMessage" name="longMessage"></input>
-        <button class="buttons" id="sendErrorMgs"></button>
+        <button class="btn btn-primary" id="sendErrorMgs"></button>
     </form>
-
+    </div>
+    {{> footer }}
     </body>
 
 </html>
@@ -52,9 +55,9 @@
             account = this.value;
         });
 
-        $('#getTradingTicket').on('click', function(){
-            getTradingTicket();
-        });
+        //$('#getTradingTicket').on('click', function(){
+        //    getTradingTicket();
+        //});
 
         $('#closeSession').on('click', function(){
             triggerCloseSession();
