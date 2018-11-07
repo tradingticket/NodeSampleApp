@@ -72,7 +72,7 @@
     var triggerCloseSession = function(){
         $.ajax({
             data: {token: sessionToken, apiKey: apiKey},
-            dataType: "json",
+            dataType: "jsonp",
             method: "POST",
             url: "https://ems.qa.tradingticket.com/api/v1/user/closeSession",
             success: parseCloseSession

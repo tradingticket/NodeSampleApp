@@ -119,7 +119,7 @@
 
         $.ajax({
             data: postData,
-            dataType: "json",
+            dataType: "jsonp",
             method: "POST",
             url: "https://ems.qa.tradingticket.com/api/v1/order/previewStockOrEtfOrder",
             success: parseResult
@@ -170,7 +170,7 @@
     var placeOrder = function(sessionToken, orderId){
         $.ajax({
             data: {orderId: orderId, token: sessionToken},
-            dataType: "json",
+            dataType: "jsonp",
             method: "POST",
             url: "https://ems.qa.tradingticket.com/api/v1/order/placeStockOrEtfOrder",
             success: orderPlaced

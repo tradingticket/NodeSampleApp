@@ -95,7 +95,7 @@
     var getPopUpURL = function(broker){
         $.ajax({
             data: {apiKey: "tradeit-test-api-key", broker: broker},
-            dataType: "json",
+            dataType: "jsonp",
             method: "POST",
             url: "https://ems.qa.tradingticket.com/api/v1/user/getOAuthLoginPopupUrlForWebApp",
             success: parseResult
@@ -128,7 +128,7 @@
     var getTradeItTokens = function(oAuthVerifier){
         $.ajax({
             data: {apiKey: "tradeit-test-api-key", oAuthVerifier: oAuthVerifier},
-                dataType: "json",
+                dataType: "jsonp",
                 method: "POST",
                 url: "https://ems.qa.tradingticket.com/api/v1/user/getOAuthAccessToken",
                 success: authenticate
@@ -153,7 +153,7 @@
 
             $.ajax({
                 data: {apiKey: "tradeit-test-api-key", userId: result.userId, userToken: result.userToken},
-                dataType: "json",
+                dataType: "jsonp",
                 method: "POST",
                 url: "https://ems.qa.tradingticket.com/api/v1/user/authenticate?srv=05040504",
                 success: processAuthResult
@@ -218,7 +218,7 @@
         $('#answer').val('');
         $.ajax({
             data: {apiKey: "tradeit-test-api-key", token: token, securityAnswer: answer},
-                dataType: "json",
+                dataType: "jsonp",
                 method: "POST",
                 url: "https://ems.qa.tradingticket.com/api/v1/user/answerSecurityQuestion?srv=05040504",
                 success: processAuthResult
