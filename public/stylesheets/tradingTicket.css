@@ -1,6 +1,5 @@
 body {
     padding: 50px;
-    font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
 a {
@@ -34,4 +33,8 @@ li {
 
 #reviewOrder {
     margin-top: 20px;
+}
+
+#reviewScreen {
+    font-size: large;
 }

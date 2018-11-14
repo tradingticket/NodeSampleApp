@@ -1,0 +1,5 @@
+applications:
+- memory: 256M
+  instances: 1
+  name: portfolio-tradeit
+  disk_quota: 1024M

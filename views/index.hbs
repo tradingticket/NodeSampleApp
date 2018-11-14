@@ -1,24 +1,26 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Broker Selection</title>
+    {{> prereqs }}
+    <link rel='stylesheet' href='/stylesheets/main.css' />
     <link rel='stylesheet' href='/stylesheets/style.css' />
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
   </head>
-  <body>
-  <h2 .col-xs-6 .col-md-4>Welcome to <span class="trade">Trade</span><span class="it">IT</span></h2>
-    <p>Broker Selection</p>
+  <body class="sandboxtwo">
+      {{> header }}
+      <div class="page-content tab">
+      <h2 .col-xs-6 .col-md-4>Welcome to <span style="color: lightcoral;">Portfolio </span><span class="trade">Trade</span><span class="it">IT</span></h2>
+    <p><h3>Broker Selection</h3></p>
 
     <div class="userInput">
-        <p>Select a broker to sign in with</p>
-
+        <br>
         <form action="/" method="post" id="form" >
-            <select name="broker">
+            <select class="form-control" name="broker">
                 {{#each list}}
                     <option value={{shortName}}>{{shortName}}</option>
                {{/each}}
             </select>
-            <button type="submit" id="getPopUpURL" value="Send">Sign In</button>
+            <br>
+            <button type="submit" class="btn btn-info" id="getPopUpURL" value="Send">Sign In</button>
         </form>
         <br />
         <div class="informationNeeded hidden">
@@ -43,7 +45,8 @@
           <input id="longMessage" name="longMessage"></input>
           <button type="submit" id="failedAuthSubmit" value="Send"></button>
       </form>
-
+      </div>
+      {{> footer }}
   </body>
 </html>
 
@@ -93,7 +96,7 @@
     var getPopUpURL = function(broker){
         $.ajax({
             data: {apiKey: "tradeit-test-api-key", broker: broker},
-            dataType: "json",
+            dataType: "jsonp",
             method: "POST",
             url: "https://ems.qa.tradingticket.com/api/v1/user/getOAuthLoginPopupUrlForWebApp",
             success: parseResult
@@ -126,7 +129,7 @@
     var getTradeItTokens = function(oAuthVerifier){
         $.ajax({
             data: {apiKey: "tradeit-test-api-key", oAuthVerifier: oAuthVerifier},
-                dataType: "json",
+                dataType: "jsonp",
                 method: "POST",
                 url: "https://ems.qa.tradingticket.com/api/v1/user/getOAuthAccessToken",
                 success: authenticate
@@ -151,7 +154,7 @@
 
             $.ajax({
                 data: {apiKey: "tradeit-test-api-key", userId: result.userId, userToken: result.userToken},
-                dataType: "json",
+                dataType: "jsonp",
                 method: "POST",
                 url: "https://ems.qa.tradingticket.com/api/v1/user/authenticate?srv=05040504",
                 success: processAuthResult
@@ -216,7 +219,7 @@
         $('#answer').val('');
         $.ajax({
             data: {apiKey: "tradeit-test-api-key", token: token, securityAnswer: answer},
-                dataType: "json",
+                dataType: "jsonp",
                 method: "POST",
                 url: "https://ems.qa.tradingticket.com/api/v1/user/answerSecurityQuestion?srv=05040504",
                 success: processAuthResult
